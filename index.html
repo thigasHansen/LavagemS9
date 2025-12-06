@@ -51,4 +51,72 @@
       cursor: pointer;
     }
     button:hover {
-      background
+      background-color: #cccccc;
+    }
+    .result {
+      margin-top: 15px;
+      font-weight: bold;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator-box">
+    <h1>Cálculo Dinastia</h1>
+
+    <label>
+      Rolos (0–1000):
+      <input type="number" id="rolos" min="0" max="1000" value="0">
+    </label>
+
+    <label>
+      Malotes (0–1000):
+      <input type="number" id="malotes" min="0" max="1000" value="0">
+    </label>
+
+    <label>
+      Tipo:
+      <select id="tipo">
+        <option value="parceria">Parceria</option>
+        <option value="pista">Pista</option>
+        <option value="pessoal">Pessoal</option>
+      </select>
+    </label>
+
+    <button onclick="calculate()">Calcular</button>
+
+    <div class="result" id="tipoResult">Tipo selecionado: -</div>
+    <div class="result" id="total">Total: 0</div>
+    <div class="result" id="pagar">Pagar ao Cliente: 0</div>
+    <div class="result" id="depositar">Depositar no Tablet: 0</div>
+  </div>
+
+  <script>
+    function calculate() {
+      const rolos = parseInt(document.getElementById('rolos').value) || 0;
+      const malotes = parseInt(document.getElementById('malotes').value) || 0;
+      const tipo = document.getElementById('tipo').value;
+
+      let total = (rolos * 10000) + (malotes * 100000);
+      let pagar = 0;
+      let depositar = 0;
+
+      if (tipo === "parceria") {
+        pagar = total * 0.75;
+        depositar = (total * 0.25) * 0.10;
+      } else if (tipo === "pista") {
+        pagar = total * 0.70;
+        depositar = (total * 0.30) * 0.10;
+      } else if (tipo === "pessoal") {
+        pagar = total;
+        depositar = total * 0.10;
+      }
+
+      document.getElementById('tipoResult').innerText = "Tipo selecionado: " + tipo.charAt(0).toUpperCase() + tipo.slice(1);
+      document.getElementById('total').innerText = "Total: " + total.toLocaleString();
+      document.getElementById('pagar').innerText = "Pagar ao Cliente: " + pagar.toLocaleString();
+      document.getElementById('depositar').innerText = "Depositar no Tablet: " + depositar.toLocaleString();
+    }
+  </script>
+</body>
+</html>
