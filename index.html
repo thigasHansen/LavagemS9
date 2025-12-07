@@ -90,6 +90,9 @@
 
     <button onclick="calculate()">Calcular</button>
 
+    <!-- Documentos necessários moved to the top of results -->
+    <div class="result" id="documentos">Documentos necessários: 0</div>
+
     <div class="result" id="grupoResult">Grupo: -</div>
     <div class="result" id="tipoResult">Tipo selecionado: -</div>
     <div class="result" id="rolosAmount">Quantidade de Rolos: 0</div>
@@ -98,7 +101,7 @@
     <div class="result" id="pagar">Pagar ao Cliente: 0</div>
     <div class="result" id="depositar">Depositar no Tablet: 0</div>
 
-    <!-- Copiar Resultados button moved under the results -->
+    <!-- Copiar Resultados button -->
     <button onclick="copyResults()">Copiar Resultados</button>
   </div>
 
@@ -124,6 +127,10 @@
         depositar = total * 0.10;
       }
 
+      // Novo cálculo: 1 documento para cada 10000
+      let documentos = Math.floor(total / 10000);
+
+      document.getElementById('documentos').innerText = "Documentos necessários: " + documentos;
       document.getElementById('grupoResult').innerText = "Grupo: " + grupo;
       document.getElementById('tipoResult').innerText = "Tipo selecionado: " + tipo.charAt(0).toUpperCase() + tipo.slice(1);
       document.getElementById('rolosAmount').innerText = "Quantidade de Rolos: " + rolos;
@@ -142,6 +149,7 @@
       const pagar = document.getElementById('pagar').innerText;
       const depositar = document.getElementById('depositar').innerText;
 
+      // Documentos NÃO incluído na cópia
       const textToCopy = `${grupo}\n${tipo}\n${rolos}\n${malotes}\n${total}\n${pagar}\n${depositar}`;
 
       navigator.clipboard.writeText(textToCopy).then(() => {
