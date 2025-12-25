@@ -96,7 +96,7 @@
     <button onclick="calculate()">Calcular</button>
 
     <div class="result" id="nomeResult">Nome: -</div>
-    <div class="result" id="grupoResult">Grupo: -</div>
+    <div class="result" id="grupoResult" style="display:none;">Grupo: -</div>
     <div class="result" id="tipoResult">Tipo selecionado: -</div>
     <div class="result" id="rolosAmount">Quantidade de Rolos: 0</div>
     <div class="result" id="malotesAmount">Quantidade de Malotes: 0</div>
@@ -104,7 +104,6 @@
     <div class="result" id="pagar">Pagar ao Cliente: 0</div>
     <div class="result" id="depositar">Depositar no Tablet: 0</div>
 
-    <!-- Button renamed to Discord -->
     <button onclick="sendToDiscord()">Discord</button>
   </div>
 
@@ -132,30 +131,51 @@
       }
 
       document.getElementById('nomeResult').innerText = "Nome: " + nome;
-      document.getElementById('grupoResult').innerText = "Grupo: " + grupo;
-      document.getElementById('tipoResult').innerText = "Tipo selecionado: " + tipo.charAt(0).toUpperCase() + tipo.slice(1);
-      document.getElementById('rolosAmount').innerText = "Quantidade de Rolos: " + rolos;
-      document.getElementById('malotesAmount').innerText = "Quantidade de Malotes: " + malotes;
-      document.getElementById('total').innerText = "Total: " + total.toLocaleString();
-      document.getElementById('pagar').innerText = "Pagar ao Cliente: " + pagar.toLocaleString();
-      document.getElementById('depositar').innerText = "Depositar no Tablet: " + depositar.toLocaleString();
+      document.getElementById('tipoResult').innerText =
+        "Tipo selecionado: " + tipo.charAt(0).toUpperCase() + tipo.slice(1);
+      document.getElementById('rolosAmount').innerText =
+        "Quantidade de Rolos: " + rolos;
+      document.getElementById('malotesAmount').innerText =
+        "Quantidade de Malotes: " + malotes;
+      document.getElementById('total').innerText =
+        "Total: " + total.toLocaleString();
+      document.getElementById('pagar').innerText =
+        "Pagar ao Cliente: " + pagar.toLocaleString();
+      document.getElementById('depositar').innerText =
+        "Depositar no Tablet: " + depositar.toLocaleString();
+
+      // Mostrar Grupo só quando o tipo for "parceria"
+      const grupoResultDiv = document.getElementById('grupoResult');
+      if (tipo === "parceria") {
+        grupoResultDiv.style.display = "block";
+        grupoResultDiv.innerText = "Grupo: " + grupo;
+      } else {
+        grupoResultDiv.style.display = "none";
+        grupoResultDiv.innerText = "Grupo: -";
+      }
     }
 
     function buildMessage() {
-      return [
+      const lines = [
         document.getElementById('nomeResult').innerText,
-        document.getElementById('grupoResult').innerText,
         document.getElementById('tipoResult').innerText,
         document.getElementById('rolosAmount').innerText,
         document.getElementById('malotesAmount').innerText,
         document.getElementById('total').innerText,
         document.getElementById('pagar').innerText,
         document.getElementById('depositar').innerText
-      ].join("\n");
+      ];
+
+      const grupoResultDiv = document.getElementById('grupoResult');
+      if (grupoResultDiv.style.display !== "none") {
+        lines.splice(1, 0, grupoResultDiv.innerText); // insere Grupo depois do Nome
+      }
+
+      return lines.join("\n");
     }
 
     function sendToDiscord() {
-      const webhookURL = "PASTE_YOUR_WEBHOOK_HERE";
+      const webhookURL = "https://discord.com/api/webhooks/1453862400779616308/_EN7UyZe86qlPjUv5Nj7Un9G3B_Sc77Gcci8egeg6CdTDE5gi09jqSxgR43hDXwZpQl_";
 
       const textToCopy = buildMessage();
       navigator.clipboard.writeText(textToCopy);
