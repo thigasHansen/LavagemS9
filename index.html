@@ -15,7 +15,7 @@
       font-family: Arial, sans-serif;
 
       /* BACKGROUND IMAGE */
-      background-image: url("https://i.postimg.cc/HYZdCqhq/Dinastia-Brasao.png");
+      background-image: url("https://i.postimg.cc/7h2p3WD9/Dinastia-Brasao.png");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -82,7 +82,16 @@
       Nome:
       <input type="text" id="nome" placeholder="Digite o nome">
     </label>
-
+    
+    <label>
+      Tipo:
+      <select id="tipo">
+        <option value="parceria">Parceria</option>
+        <option value="pista">Pista</option>
+        <option value="pessoal" selected>Pessoal</option>
+      </select>
+    </label>
+    
     <label id="grupoInput" style="display:none;">
       Grupo:
       <input type="text" id="grupo" placeholder="Digite o grupo">
@@ -98,15 +107,6 @@
       <input type="number" id="malotes" min="0" max="1000" value="0">
     </label>
 
-    <label>
-      Tipo:
-      <select id="tipo">
-        <option value="parceria">Parceria</option>
-        <option value="pista">Pista</option>
-        <option value="pessoal" selected>Pessoal</option>
-      </select>
-    </label>
-
     <div class="result" id="nomeResult">Nome: -</div>
     <div class="result" id="grupoResult" style="display:none;">Grupo: -</div>
     <div class="result" id="tipoResult">Tipo selecionado: -</div>
@@ -118,18 +118,17 @@
 
     <button onclick="sendToDiscord()">Discord</button>
 
-    <!-- Correction button (hidden until first send) -->
     <button id="corrigirBtn" onclick="correctLast()" style="display:none;">Corrigir</button>
   </div>
 
   <script>
-    let lastSentMessage = null; // stores last sent data
+    const webhookURL = "https://discord.com/api/webhooks/1453862400779616308/_EN7UyZe86qlPjUv5Nj7Un9G3B_Sc77Gcci8egeg6CdTDE5gi09jqSxgR43hDXwZpQl_?wait=true";
 
-    // Auto-update on any change
+    let lastMessageId = null;
+
     document.querySelectorAll("#nome, #grupo, #rolos, #malotes, #tipo")
       .forEach(el => el.addEventListener("input", calculate));
 
-    // Show/hide Grupo input when Tipo changes
     document.getElementById('tipo').addEventListener('change', function () {
       const tipo = this.value;
       const grupoInput = document.getElementById('grupoInput');
@@ -211,45 +210,42 @@
     }
 
     function sendToDiscord() {
-      const webhookURL = "https://discord.com/api/webhooks/1453862400779616308/_EN7UyZe86qlPjUv5Nj7Un9G3B_Sc77Gcci8egeg6CdTDE5gi09jqSxgR43hDXwZpQl_";
-
       const textToCopy = buildMessage();
       navigator.clipboard.writeText(textToCopy);
-
-      lastSentMessage = textToCopy; // store last sent data
-
-      const message = {
-        content: "📊 **Resultados do Cálculo Dinastia**\n```\n" + textToCopy + "\n```"
-      };
 
       fetch(webhookURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(message)
+        body: JSON.stringify({
+          content: "📊 **Resultados do Cálculo Dinastia**\n```\n" + textToCopy + "\n```"
+        })
       })
-      .then(() => {
+      .then(response => response.json())
+      .then(data => {
+        lastMessageId = data.id;
         alert("Copiado e enviado ao Discord!");
-        document.getElementById("corrigirBtn").style.display = "block"; // show correction button
+        document.getElementById("corrigirBtn").style.display = "block";
       })
       .catch(() => alert("Erro ao enviar para o Discord"));
     }
 
     function correctLast() {
-      if (!lastSentMessage) return;
+      if (!lastMessageId) return;
 
-      const webhookURL = "https://discord.com/api/webhooks/1453862400779616308/_EN7UyZe86qlPjUv5Nj7Un9G3B_Sc77Gcci8egeg6CdTDE5gi09jqSxgR43hDXwZpQl_";
       const corrected = buildMessage();
+      const editURL = webhookURL.replace("?wait=true", "") + "/messages/" + lastMessageId;
 
-      const message = {
-        content: "🔄 **Correção dos Dados Enviados**\n```\n" + corrected + "\n```"
-      };
-
-      fetch(webhookURL, {
-        method: "POST",
+      fetch(editURL, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(message)
+        body: JSON.stringify({
+          content: "📊 **Resultados Corrigidos**\n```\n" + corrected + "\n```"
+        })
       })
-      .then(() => alert("Correção enviada ao Discord!"))
+      .then(() => {
+        alert("Correção enviada ao Discord!");
+        document.getElementById("corrigirBtn").style.display = "none";
+      })
       .catch(() => alert("Erro ao enviar correção"));
     }
 
