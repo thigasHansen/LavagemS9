@@ -14,7 +14,6 @@
       color: white;
       font-family: Arial, sans-serif;
 
-      /* BACKGROUND IMAGE */
       background-image: url("https://i.postimg.cc/7h2p3WD9/Dinastia-Brasao.png");
       background-size: cover;
       background-position: center;
@@ -53,7 +52,6 @@
     }
 
     button {
-      margin-top: 20px;
       padding: 10px 20px;
       background-color: white;
       color: black;
@@ -65,6 +63,17 @@
 
     button:hover {
       background-color: #cccccc;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    #discordBtn, #corrigirBtn {
+      flex: 1;
     }
 
     .result {
@@ -82,7 +91,7 @@
       Nome:
       <input type="text" id="nome" placeholder="Digite o nome">
     </label>
-    
+
     <label>
       Tipo:
       <select id="tipo">
@@ -91,7 +100,7 @@
         <option value="pessoal" selected>Pessoal</option>
       </select>
     </label>
-    
+
     <label id="grupoInput" style="display:none;">
       Grupo:
       <input type="text" id="grupo" placeholder="Digite o grupo">
@@ -116,13 +125,15 @@
     <div class="result" id="pagar">Pagar ao Cliente: 0</div>
     <div class="result" id="depositar">Depositar no Tablet: 0</div>
 
-    <button onclick="sendToDiscord()">Discord</button>
-
-    <button id="corrigirBtn" onclick="correctLast()" style="display:none;">Corrigir</button>
+    <div class="button-row">
+      <button id="discordBtn" onclick="sendToDiscord()">Discord</button>
+      <button id="corrigirBtn" onclick="correctLast()" style="display:none;">Corrigir</button>
+    </div>
   </div>
 
   <script>
-    const webhookURL = "https://discord.com/api/webhooks/1453862400779616308/_EN7UyZe86qlPjUv5Nj7Un9G3B_Sc77Gcci8egeg6CdTDE5gi09jqSxgR43hDXwZpQl_?wait=true";
+    const webhookURL =
+      "https://discord.com/api/webhooks/1453862400779616308/_EN7UyZe86qlPjUv5Nj7Un9G3B_Sc77Gcci8egeg6CdTDE5gi09jqSxgR43hDXwZpQl_?wait=true";
 
     let lastMessageId = null;
 
@@ -233,7 +244,8 @@
       if (!lastMessageId) return;
 
       const corrected = buildMessage();
-      const editURL = webhookURL.replace("?wait=true", "") + "/messages/" + lastMessageId;
+      const editURL =
+        webhookURL.replace("?wait=true", "") + "/messages/" + lastMessageId;
 
       fetch(editURL, {
         method: "PATCH",
