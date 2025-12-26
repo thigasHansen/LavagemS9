@@ -13,23 +13,34 @@
       background-color: black;
       color: white;
       font-family: Arial, sans-serif;
+
+      /* BACKGROUND IMAGE */
+      background-image: url("https://i.postimg.cc/HYZdCqhq/Dinastia-Brasao.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
+
     .calculator-box {
-      background-color: #1a1a1a;
+      background-color: rgba(0,0,0,0.75);
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 0 15px rgba(255,255,255,0.2);
       text-align: center;
       width: 350px;
+      backdrop-filter: blur(4px);
     }
+
     h1 {
       margin-bottom: 20px;
       color: white;
     }
+
     label {
       display: block;
       margin-top: 15px;
     }
+
     input, select {
       margin-top: 5px;
       padding: 8px;
@@ -40,6 +51,7 @@
       border: 1px solid white;
       border-radius: 6px;
     }
+
     button {
       margin-top: 20px;
       padding: 10px 20px;
@@ -50,9 +62,11 @@
       border-radius: 6px;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #cccccc;
     }
+
     .result {
       margin-top: 15px;
       font-weight: bold;
@@ -69,7 +83,7 @@
       <input type="text" id="nome" placeholder="Digite o nome">
     </label>
 
-    <label>
+    <label id="grupoInput" style="display:none;">
       Grupo:
       <input type="text" id="grupo" placeholder="Digite o grupo">
     </label>
@@ -89,11 +103,9 @@
       <select id="tipo">
         <option value="parceria">Parceria</option>
         <option value="pista">Pista</option>
-        <option value="pessoal">Pessoal</option>
+        <option value="pessoal" selected>Pessoal</option>
       </select>
     </label>
-
-    <button onclick="calculate()">Calcular</button>
 
     <div class="result" id="nomeResult">Nome: -</div>
     <div class="result" id="grupoResult" style="display:none;">Grupo: -</div>
@@ -105,9 +117,35 @@
     <div class="result" id="depositar">Depositar no Tablet: 0</div>
 
     <button onclick="sendToDiscord()">Discord</button>
+
+    <!-- Correction button (hidden until first send) -->
+    <button id="corrigirBtn" onclick="correctLast()" style="display:none;">Corrigir</button>
   </div>
 
   <script>
+    let lastSentMessage = null; // stores last sent data
+
+    // Auto-update on any change
+    document.querySelectorAll("#nome, #grupo, #rolos, #malotes, #tipo")
+      .forEach(el => el.addEventListener("input", calculate));
+
+    // Show/hide Grupo input when Tipo changes
+    document.getElementById('tipo').addEventListener('change', function () {
+      const tipo = this.value;
+      const grupoInput = document.getElementById('grupoInput');
+      const grupoResult = document.getElementById('grupoResult');
+
+      if (tipo === "parceria") {
+        grupoInput.style.display = "block";
+        grupoResult.style.display = "block";
+      } else {
+        grupoInput.style.display = "none";
+        grupoResult.style.display = "none";
+      }
+
+      calculate();
+    });
+
     function calculate() {
       const nome = document.getElementById('nome').value || "-";
       const grupo = document.getElementById('grupo').value || "-";
@@ -144,14 +182,12 @@
       document.getElementById('depositar').innerText =
         "Depositar no Tablet: " + depositar.toLocaleString();
 
-      // Mostrar Grupo só quando o tipo for "parceria"
       const grupoResultDiv = document.getElementById('grupoResult');
       if (tipo === "parceria") {
         grupoResultDiv.style.display = "block";
         grupoResultDiv.innerText = "Grupo: " + grupo;
       } else {
         grupoResultDiv.style.display = "none";
-        grupoResultDiv.innerText = "Grupo: -";
       }
     }
 
@@ -168,17 +204,19 @@
 
       const grupoResultDiv = document.getElementById('grupoResult');
       if (grupoResultDiv.style.display !== "none") {
-        lines.splice(1, 0, grupoResultDiv.innerText); // insere Grupo depois do Nome
+        lines.splice(1, 0, grupoResultDiv.innerText);
       }
 
       return lines.join("\n");
     }
 
     function sendToDiscord() {
-      const webhookURL = "https://discord.com/api/webhooks/1453862400779616308/_EN7UyZe86qlPjUv5Nj7Un9G3B_Sc77Gcci8egeg6CdTDE5gi09jqSxgR43hDXwZpQl_";
+      const webhookURL = "PASTE_YOUR_WEBHOOK_HERE";
 
       const textToCopy = buildMessage();
       navigator.clipboard.writeText(textToCopy);
+
+      lastSentMessage = textToCopy; // store last sent data
 
       const message = {
         content: "📊 **Resultados do Cálculo Dinastia**\n```\n" + textToCopy + "\n```"
@@ -189,9 +227,33 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(message)
       })
-      .then(() => alert("Copiado e enviado ao Discord!"))
+      .then(() => {
+        alert("Copiado e enviado ao Discord!");
+        document.getElementById("corrigirBtn").style.display = "block"; // show correction button
+      })
       .catch(() => alert("Erro ao enviar para o Discord"));
     }
+
+    function correctLast() {
+      if (!lastSentMessage) return;
+
+      const webhookURL = "https://discord.com/api/webhooks/1453862400779616308/_EN7UyZe86qlPjUv5Nj7Un9G3B_Sc77Gcci8egeg6CdTDE5gi09jqSxgR43hDXwZpQl_";
+      const corrected = buildMessage();
+
+      const message = {
+        content: "🔄 **Correção dos Dados Enviados**\n```\n" + corrected + "\n```"
+      };
+
+      fetch(webhookURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(message)
+      })
+      .then(() => alert("Correção enviada ao Discord!"))
+      .catch(() => alert("Erro ao enviar correção"));
+    }
+
+    calculate();
   </script>
 </body>
 </html>
