@@ -18,6 +18,13 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0 }
+      to { opacity: 1 }
     }
 
     .calculator-box {
@@ -28,6 +35,12 @@
       text-align: center;
       width: 350px;
       backdrop-filter: blur(4px);
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px) }
+      to { opacity: 1; transform: translateY(0) }
     }
 
     h1 {
@@ -38,6 +51,7 @@
     label {
       display: block;
       margin-top: 15px;
+      transition: all 0.3s ease;
     }
 
     input, select {
@@ -49,6 +63,12 @@
       color: white;
       border: 1px solid white;
       border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      transform: scale(1.05);
+      border-color: #00d9ff;
     }
 
     button {
@@ -59,10 +79,12 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      transition: all 0.3s ease;
     }
 
     button:hover {
       background-color: #cccccc;
+      transform: scale(1.05);
     }
 
     .button-row {
@@ -72,14 +94,56 @@
       margin-top: 20px;
     }
 
-    #discordBtn, #corrigirBtn {
-      flex: 1;
+    #corrigirBtn {
+      display: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s ease;
+    }
+
+    #corrigirBtn.show {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .result {
       margin-top: 15px;
       font-weight: bold;
       color: white;
+      transition: all 0.3s ease;
+    }
+
+    /* 📱 MODO COMPACTO PARA CELULAR */
+    @media (max-width: 480px) {
+      .calculator-box {
+        width: 90%;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      input, select {
+        width: 120px;
+        padding: 6px;
+        font-size: 14px;
+      }
+
+      button {
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+
+      .result {
+        font-size: 14px;
+        margin-top: 10px;
+      }
+
+      label {
+        margin-top: 10px;
+      }
     }
   </style>
 </head>
@@ -127,7 +191,7 @@
 
     <div class="button-row">
       <button id="discordBtn" onclick="sendToDiscord()">Discord</button>
-      <button id="corrigirBtn" onclick="correctLast()" style="display:none;">Corrigir</button>
+      <button id="corrigirBtn" onclick="correctLast()">Corrigir</button>
     </div>
   </div>
 
@@ -235,7 +299,9 @@
       .then(data => {
         lastMessageId = data.id;
         alert("Copiado e enviado ao Discord!");
-        document.getElementById("corrigirBtn").style.display = "block";
+
+        const corrigirBtn = document.getElementById("corrigirBtn");
+        corrigirBtn.classList.add("show");
       })
       .catch(() => alert("Erro ao enviar para o Discord"));
     }
@@ -256,7 +322,6 @@
       })
       .then(() => {
         alert("Correção enviada ao Discord!");
-        document.getElementById("corrigirBtn").style.display = "none";
       })
       .catch(() => alert("Erro ao enviar correção"));
     }
